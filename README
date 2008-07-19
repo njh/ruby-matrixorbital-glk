@@ -1,0 +1,36 @@
+== MatrixOrbital::GLK
+
+MatrixOrbital::GLK is a ruby gem for controlling 
+the GLK serial of LCD screens made by Matrix Orbital.
+
+For more information about GLK series MatrixOrbital displays, please visit:
+http://www.matrixorbital.ca/products/glk_Series/
+
+Please note that I am not an employee and have nothing to do with MatrixOrbital,
+other than being a happy customer.
+
+RubyForge Project Page  http://rubyforge.org/projects/matrixorbital/
+
+
+== Installing
+
+You may get the latest stable version from Rubyforge. Source gems are also available.
+
+  $ gem install matrixorbital-glk
+
+
+=== Loading matrixorbital-glk gem Itself
+
+You have installed the gem already, yeah?
+
+ require 'rubygems'
+ require 'matrixorbital/glk'
+
+
+== Contact
+
+Author::     Nicholas J Humfrey
+Email::      njh@aelius.com 
+Home Page::  http://www.aelius.com/njh/
+License::    Distributes under the same terms as Ruby
+
