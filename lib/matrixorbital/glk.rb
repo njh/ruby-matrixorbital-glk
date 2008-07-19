@@ -114,7 +114,7 @@ class GLK < File
     send_command( 0x47, col, row )
   end
 
-  # This command positions the insertion point at a speciÞc pixel (X,Y), 
+  # This command positions the insertion point at a specific pixel (X,Y), 
   # which references the top left corner of the font insertion point.
   #
   # Example:
@@ -158,8 +158,8 @@ class GLK < File
   
   # This command enabled and disables autoscrolling.
   # When auto scrolling is on, it causes the display to shift the entire 
-  # displayÕs contents up to make room for a new line of text when the text 
-  # reaches the end of the scroll row deÞned in the font metrics (the bottom 
+  # display's contents up to make room for a new line of text when the text 
+  # reaches the end of the scroll row defined in the font metrics (the bottom 
   # right character position)
   def autoscroll=(state)
     if state
@@ -178,7 +178,7 @@ class GLK < File
   end
   
   # This command clears the display and resets the text insertion position to 
-  # the top left position of the screen deÞned in the font metrics.
+  # the top left position of the screen defined in the font metrics.
   def clear_screen
     send_command( 0x58 )
   end
@@ -239,7 +239,7 @@ class GLK < File
     send_command( 0x31, refid )
   end
   
-  # This command completely erases the displayÕs non-volatile memory. It 
+  # This command completely erases the display's non-volatile memory. It 
   # removes all fonts, font metrics, bitmaps, and settings (current font, 
   # cursor position, communication speed, etc.).
   def wipe_filesystem
@@ -261,7 +261,7 @@ class GLK < File
     #return count;
   end
   
-  # This command will return a directory of the contents of the Þle system.
+  # This command will return a directory of the contents of the file system.
   # It returns an array of directory entires, where each entry is a hash.
   def filesystem_directory
     send_command( 0xB3 )
