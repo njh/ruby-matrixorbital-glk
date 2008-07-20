@@ -177,6 +177,34 @@ class GLK < File
     end
   end
 
+  # This command clears any unread key presses.
+  def clear_key_buffer
+    send_command( 0x45 )
+  end
+  
+  # When auto transmit key presses is turned on all key presses are sent 
+  # immediately to the host system without the use of the <em>poll_keypad</em> 
+  # method. This is the default mode on power up. 
+  #
+  # When auto transmit key presses is turned off up to 10 key presses are 
+  # buffered until the unit is polled by the host system.
+  def auto_transmit_key_presses=(state)
+    if state
+      send_command( 0x41 )
+    else
+      send_command( 0x4F )
+    end
+  end
+  
+  # This command sets the time (in miliseconds) between key press and key read.
+  # All key types with the exception of latched piezo switches will 'bounce' 
+  # for a varying time, depending on their physical characteristics.
+  def debounce_time=(ms)
+    time = (ms.to_f / 6.554).to_i
+    raise "Debounce time is out of range" if (value<0 or value>255)
+    send_command( 0x63, value )
+  end
+  
   # This command sets the drawing color for subsequent graphic commands 
   # that do not have the drawing color passed as a parameter. The parameter 
   # <em>color</em> is the value of the color where white is <em>false<em>
@@ -184,13 +212,13 @@ class GLK < File
   def drawing_color=(color)
     send_command( 0x63, color ? 0 : 1 )
   end
-  
+
   # This command clears the display and resets the text insertion position to 
   # the top left position of the screen defined in the font metrics.
   def clear_screen
     send_command( 0x58 )
   end
-  
+
   # This command will draw a bitmap that is located in the on board memory.
   # The bitmap is referenced by the bitmaps reference identification number, 
   # which is established when the bitmap is uploaded to the display module. 
