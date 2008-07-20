@@ -10,32 +10,40 @@
 module MatrixOrbital
 
 class GLK < File
-
+  attr_reader :serialport, :baudrate
+  
   # Connect to an LCD screen.
   # All of the parametes are optional.
   # By default the LCD screen type will be detected automatically.
-  def initialize(port='/dev/ttyS0', baudrate=19200, manual_lcd_type=nil)
+  def initialize(serialport='/dev/ttyS0', baudrate=19200, manual_lcd_type=nil)
   
     # Does the device exist?
-    unless File.exists? port
-      raise "Serial port '#{port}' does not exist."
+    @serialport = serialport
+    unless File.exists? serialport
+      raise "Serial port '#{serialport}' does not exist."
     end
   
     # Use the lcd_type given, or ask the module
-    unless lcd_type.nil?
+    unless manual_lcd_type.nil?
       @lcd_type = manual_lcd_type
     end
 
+    # Store the baudrate
+    
     # Configure the serial port
     # FIXME: use pure ruby
-    system("stty -F #{port} raw speed #{baudrate} cs8 -ixon -echo cbreak -isig -parenb > /dev/null") or
+    @baudrate = baudrate
+    system("stty -F #{serialport} raw speed #{baudrate} cs8 -ixon -echo cbreak -isig -parenb > /dev/null") or
       raise "Failed to set parameters on the serial port."
 
     # Now, open the serial port
-    super(port, "rb+")
+    super(serialport, "rb+")
 
     # Disable buffering
     self.sync = true
+    
+    # Flush the input buffer
+    
   end
 
   # This command sets the I2C write address of the module between 0x00 
@@ -47,10 +55,10 @@ class GLK < File
     send_command( 0x33, address )
   end
 
-  # This command sets the lcd's RS-232 port to the specified <i>baudrate</i>.
+  # This command sets the lcd's RS-232 port to the specified <em>baudrate</em>.
   # The change takes place immediately.
-  def lcd_baudrate=(baudrate)
-    case baudrate
+  def lcd_baudrate=(lcd_baudrate)
+    case lcd_baudrate
       when 9600 then
         send_command( 0x39, 0xCF )
       when 14400 then
@@ -68,7 +76,7 @@ class GLK < File
       when 115200 then
         send_command( 0x39, 0x10 )
       else
-        raise "Invalid/unsupported baud rate: #{baudrate}"
+        raise "Invalid/unsupported baud rate: #{lcd_baudrate}"
     end
   end
 
@@ -126,8 +134,8 @@ class GLK < File
     send_command( 0x79, x, y )
   end
   
-  # This command sets the display's contrast to <i>value</i>, 
-  # where <i>value</i> is a value between 0 to 255. 
+  # This command sets the display's contrast to <em>value</em>, 
+  # where <em>value</em> is a value between 0 to 255. 
   # Lower values cause 'on' elements in the display area to appear 
   # lighter, while higher values cause 'on' elements to appear darker.
   def contrast=(value)
@@ -135,23 +143,23 @@ class GLK < File
     send_command( 0x50, value )
   end
   
-  # Like the <i>contrast=</i> method, only this command saves the 
+  # Like the <em>contrast=</em> method, only this command saves the 
   # value so that it is not lost after power down.
-  def contrast!=(value)
+  def save_contrast(value)
     raise "Contrast value is out of range" if (value<0 or value>255)
     send_command( 0x91, value )
   end
   
-  # This command sets the display's brightness to <i>value</i>, 
-  # where <i>value</i> is a value between 0 to 255. 
+  # This command sets the display's brightness to <em>value</em>, 
+  # where <em>value</em> is a value between 0 to 255. 
   def brightness=(value)
     raise "Brightness value is out of range" if (value<0 or value>255)
     send_command( 0x99, value )
   end
   
-  # Like the <i>brightness=</i> method, only this command saves the 
+  # Like the <em>brightness=</em> method, only this command saves the 
   # value so that it is not lost after power down.
-  def brightness!=(brightness)
+  def save_brightness(brightness)
     raise "Brightness value is out of range" if (value<0 or value>255)
     send_command( 0x98, brightness )
   end
@@ -171,8 +179,8 @@ class GLK < File
 
   # This command sets the drawing color for subsequent graphic commands 
   # that do not have the drawing color passed as a parameter. The parameter 
-  # <i>color</i> is the value of the color where white is <i>false<i>
-  # and black <i>true<i>.
+  # <em>color</em> is the value of the color where white is <em>false<em>
+  # and black <em>true<em>.
   def drawing_color=(color)
     send_command( 0x63, color ? 0 : 1 )
   end
@@ -187,19 +195,19 @@ class GLK < File
   # The bitmap is referenced by the bitmaps reference identification number, 
   # which is established when the bitmap is uploaded to the display module. 
   # The bitmap will be drawn beginning at the top left, 
-  # from the specified <i>x</i>,<i>y</i> coordinates.
+  # from the specified <em>x</em>,<em>y</em> coordinates.
   def draw_bitmap(refid, x, y)
     send_command( 0x62, refid, x, y )
   end
   
-  # This command will draw a pixel at <i>x</i>, <i>y</i> using 
+  # This command will draw a pixel at <em>x</em>, <em>y</em> using 
   # the current drawing color.
   def draw_pixel(x, y)
     send_command( 0x70, x, y )
   end
   
-  # This command will draw a line from <i>x1</i>, <i>y1</i>
-  # to <i>x2</i>, <i>y2</i> using the current drawing color. 
+  # This command will draw a line from <em>x1</em>, <em>y1</em>
+  # to <em>x2</em>, <em>y2</em> using the current drawing color. 
   # Lines may be drawn from any part of the display to any other part. 
   # However, it may be important to note that the line may in-terpolate 
   # differently right to left, or left to right. 
@@ -210,15 +218,15 @@ class GLK < File
   end
   
   # This command will draw a line with the current drawing color from 
-  # the last line end (x2,y2) to <i>x</i>, <i>y</i>.
+  # the last line end (x2,y2) to <em>x</em>, <em>y</em>.
   # This command uses the global drawing color.
   def draw_line_continue(x, y)
     send_command( 0x65, x, y )
   end
   
-  # This command draws a rectangular box in the specified <i>color</i>. 
-  # The top left corner is specified by <i>x1</i>, <i>y1</i> and 
-  # the bottom right corner by <i>x2</i>, <i>y2</i>.
+  # This command draws a rectangular box in the specified <em>color</em>. 
+  # The top left corner is specified by <em>x1</em>, <em>y1</em> and 
+  # the bottom right corner by <em>x2</em>, <em>y2</em>.
   def draw_rect(color, x1, y1, x2, y2)
     send_command( 0x72, color, x1, y1, x2, y2 )
   end
@@ -281,43 +289,28 @@ class GLK < File
     #return lsb;
   end
   
-  # This command draws a solid rectangle in the specified <i>color</i>. 
-  # The top left corner is specified by <i>x1</i>, <i>y1</i> and the bottom 
-  # right corner by <i>x2</i>, <i>y2</i>. Since this command involves 
+  # This command draws a solid rectangle in the specified <em>color</em>. 
+  # The top left corner is specified by <em>x1</em>, <em>y1</em> and the bottom 
+  # right corner by <em>x2</em>, <em>y2</em>. Since this command involves 
   # considerable processing overhead, we strongly recommend the use of flow 
   # control, particularly if the command is to be repeated frequently.
   def draw_solid_rect(color, x1, y1, x2, y2)
     send_command( 0x78, color, x1, y1, x2, y2 )
   end
 
-  # This command turns Off general purpose output <i>num</i>.
+  # This command turns Off general purpose output <em>num</em>.
   def gpo_off(num)
      send_command( 0x56, num )
   end
 
-  # This command turns On general purpose output <i>num</i>.
+  # This command turns On general purpose output <em>num</em>.
   def gpo_on(num)
     send_command( 0x57, num )
   end
   
 
-  # Returns the firmware version of the LCD module that you are 
-  # communicating with as a dotted integer (for example '5.4').
-  def firmware_version
-    # FIXME: make this work
-    #unless (defined self->{'firmware_version'end) {
-    #  send_command( 0x36 )
-    #
-    #  my value = sprintf("%2.2x", self->getchar() )
-    #  my (major, minor) = (value =~ /(\w{1end)(\w{1end)/)
-    #  self->{'firmware_version'end = "major.minor";
-    #end
-    
-    #return self->{'firmware_version'end;
-  end
 
-
-  # Send a raw command to the display, where <i>args<i> is an
+  # Send a raw command to the display, where <em>args<em> is an
   # array of integer bytes to be sent to the lcd module.
   def send_command(command, *args)
     args.unshift(0xFE, command)
@@ -331,7 +324,7 @@ class GLK < File
   end
 
 
-  # Turn LED number <i>num</i> off.
+  # Turn LED number <em>num</em> off.
   #
   # The command is only supported on LCD modules with 
   # on-board LEDS (such as the GLK19264-7T-1U)
@@ -341,7 +334,7 @@ class GLK < File
     gpo_on( gpo_base+1 )
   end
   
-  # Turn LED number <i>num</i> on - Red.
+  # Turn LED number <em>num</em> on - Red.
   #
   # The command is only supported on LCD modules with 
   # on-board LEDS (such as the GLK19264-7T-1U)
@@ -351,7 +344,7 @@ class GLK < File
     gpo_on( gpo_base+1 )
   end
   
-  # Turn LED number <i>num</i> on - Green.
+  # Turn LED number <em>num</em> on - Green.
   #
   # The command is only supported on LCD modules with 
   # on-board LEDS (such as the GLK19264-7T-1U)
@@ -361,7 +354,7 @@ class GLK < File
     gpo_off( gpo_base+1 )
   end
   
-  # Turn LED number <i>num</i> on - Yellow.
+  # Turn LED number <em>num</em> on - Yellow.
   #
   # The command is only supported on LCD modules with 
   # on-board LEDS (such as the GLK19264-7T-1U)
@@ -371,13 +364,51 @@ class GLK < File
     gpo_off( gpo_base+1 )
   end
   
+
+  # Returns the firmware version of the LCD module that you are 
+  # communicating with as a dotted integer (for example '5.4').
+  def firmware_version
+    return @firmware_version unless @firmware_version.nil?
+
+    # Request firmware version number
+    send_command( 0x36 )
+
+    # Read back one byte
+    value = getc
+    major = (value & 0xF0) >> 4
+    minor = value & 0x0F
+    return @firmware_version = "#{major}.#{minor}"
+  end
+
+
+  TYPEMAP = {
+    0x10 => 'GLC12232',
+    0x13 => 'GLC24064',
+    0x15 => 'GLK24064-25',
+    0x22 => 'GLK12232-25',
+    0x24 => 'GLK12232-25-SM',
+    0x26 => 'GLK24064-16-1U',
+    0x27 => 'GLK19264-7T-1U',
+    0x28 => 'GLK12232-16',
+    0x29 => 'GLK12232-16-SM',
+    0x72 => 'GLK240128-25'
+  }
+
   # Return the Product Idenfier for the LCD module (for example 'GLK24064-25').
   # This can be determined automatically or passed as a parameter to new().
   def lcd_type
     return @lcd_type unless @lcd_type.nil?
 
-    # FIXME: do this properly using 0x37 command
-    @lcd_type = 'GLK24064-25';
+    # Request LCD module type
+    send_command( 0x37 )
+
+    # Read back one byte
+    type = getc
+    if TYPEMAP.has_key?(type)
+      @lcd_type = TYPEMAP[type]
+    else
+      @lcd_type = "Unknown-#{type}"
+    end
   end   
   
   # Returns the dimensions (in pixels) of the LCD module you are talking 
