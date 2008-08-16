@@ -13,7 +13,7 @@ require 'matrixorbital/glk'
 
 
 glk = MatrixOrbital::GLK.new(ARGV[0]||'/dev/ttyUSB0')
-puts "Serial Port:    #{glk.serialport}"
+puts "Serial Port:    #{glk.path}"
 puts "Baud Rate:      #{glk.baudrate}"
 puts "LCD Type:       #{glk.lcd_type}"
 puts "LCD Dimensions: #{glk.lcd_dimensions.join('x')}"

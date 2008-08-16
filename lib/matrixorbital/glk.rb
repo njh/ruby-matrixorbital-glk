@@ -10,7 +10,7 @@
 module MatrixOrbital
 
 class GLK < File
-  attr_reader :serialport, :baudrate
+  attr_reader :baudrate
   
   # Connect to an LCD screen.
   # All of the parametes are optional.
@@ -18,7 +18,6 @@ class GLK < File
   def initialize(serialport='/dev/ttyS0', baudrate=19200, manual_lcd_type=nil)
   
     # Does the device exist?
-    @serialport = serialport
     unless File.exists? serialport
       raise "Serial port '#{serialport}' does not exist."
     end
