@@ -195,6 +195,23 @@ class GLK < File
     end
   end
   
+  # This command returns any buffered key presses as an array of key codes. 
+  # When the display receives this command, it will immediately return any 
+  # buffered key presses which may have not been read already.
+  def poll_key_press
+    send_command( 0x26 ) 
+    
+    keys = []
+    begin
+      # Read in key preses, while the Most Significant Bit is set
+      key = getc
+      keys << (key & 0x7F) if (key != 0x00)
+    end while (key & 0x80)
+    
+    return keys
+  end
+  
+  
   # This command sets the time (in miliseconds) between key press and key read.
   # All key types with the exception of latched piezo switches will 'bounce' 
   # for a varying time, depending on their physical characteristics.
