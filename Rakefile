@@ -16,16 +16,15 @@ spec = Gem::Specification.new do |s|
   s.version           = VERS
   s.author            = "Nicholas J Humfrey"
   s.email             = "njh@aelius.com"
-  s.homepage          = "http://matrixorbital.rubyforge.org"
+  s.homepage          = "http://github.com/njh/ruby-matrixorbital-glk"
   s.platform          = Gem::Platform::RUBY
   s.summary           = "A ruby gem to interface Matrix Orbital's GLK series of LCD Screens." 
-  s.rubyforge_project = "matrixorbital" 
   s.files             = FileList["Rakefile", "lib/matrixorbital/glk.rb", "examples/*"]
   s.require_path      = "lib"
   
   # rdoc
   s.has_rdoc          = true
-  s.extra_rdoc_files  = ["README", "NEWS", "COPYING"]
+  s.extra_rdoc_files  = ["README.md", "NEWS.md", "COPYING"]
   
   # Dependencies
   s.add_dependency "rake"
@@ -73,11 +72,6 @@ Rake::RDocTask.new("rdoc") { |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = "Matrix Orbital GLK Documentation"
   rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.main = "README"
-  rdoc.rdoc_files.include("README", "NEWS", "COPYING", "lib/matrixorbital/glk.rb")
+  rdoc.main = "README.md"
+  rdoc.rdoc_files.include("README.md", "NEWS.md", "COPYING", "lib/matrixorbital/glk.rb")
 }
-
-desc "Upload rdoc to rubyforge"
-task :upload_rdoc => [:rdoc] do
-  sh %{/usr/bin/scp -r -p rdoc/* matrixorbital.rubyforge.org:/var/www/gforge-projects/matrixorbital}
-end
