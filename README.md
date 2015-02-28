@@ -36,7 +36,7 @@ Resources
 License
 -------
 
-The matrix-orbital-glk gem is licensed under the terms of the MIT license.
+The matrix-orbital-glk ruby gem is licensed under the terms of the MIT license.
 See the file LICENSE for details.
 
 
