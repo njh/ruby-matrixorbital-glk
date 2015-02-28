@@ -33,10 +33,17 @@ Resources
 * Matrix Orbital Manuals: http://www.matrixorbital.ca/manuals/GLK_Series/
 
 
+License
+-------
+
+The matrix-orbital-glk gem is licensed under the terms of the MIT license.
+See the file LICENSE for details.
+
+
 Contact
 -------
 
 * Author:    Nicholas J Humfrey
 * Email:     njh@aelius.com
+* Twitter:   [@njh](http://twitter.com/njh)
 * Home Page: http://www.aelius.com/njh/
-* License:   Distributes under the same terms as Ruby
